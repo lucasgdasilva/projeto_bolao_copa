@@ -1,17 +1,15 @@
 function carregarJogos() {
-  const dataSelecionada = document.getElementById("data").value; // AAAA-MM-DD
+  const dataSelecionada = document.getElementById("data").value;
 
-  // Lê o arquivo local jogos.json
   fetch("jogos.json")
     .then(res => res.json())
     .then(jogos => {
       const container = document.getElementById("lista-jogos");
       container.innerHTML = "";
 
-      // Filtra jogos pela data escolhida
       const jogosDoDia = jogos.filter(jogo => {
         if (!jogo.DateUtc) return false;
-        const dataJogo = new Date(jogo.DateUtc).toISOString().split("T")[0]; // AAAA-MM-DD
+        const dataJogo = new Date(jogo.DateUtc).toISOString().split("T")[0];
         return !dataSelecionada || dataJogo === dataSelecionada;
       });
 
@@ -20,24 +18,30 @@ function carregarJogos() {
         return;
       }
 
-      // Exibe os jogos encontrados
       jogosDoDia.forEach(jogo => {
-        const div = document.createElement("div");
-        div.style.marginBottom = "15px";
+        const card = document.createElement("div");
+        card.classList.add("jogo-card");
 
-        const horario = jogo.DateUtc
-          ? new Date(jogo.DateUtc).toLocaleString("pt-BR")
-          : "Data não definida";
+        const dataFormatada = new Date(jogo.DateUtc).toLocaleDateString("pt-BR");
 
-        div.innerHTML = `
-          <strong>${jogo.HomeTeam}</strong> vs <strong>${jogo.AwayTeam}</strong><br>
-          Estádio: ${jogo.Location ?? "Não informado"}<br>
-          Grupo: ${jogo.Group ?? "Não informado"}<br>
-          Horário: ${horario}<br>
-          Status: ${jogo.Winner ? "Finalizado" : "Agendado"}<br>
-          Placar: ${jogo.HomeTeamScore ?? "-"} x ${jogo.AwayTeamScore ?? "-"}
+        card.innerHTML = `
+          <div class="jogo-data">${dataFormatada}</div>
+          <div class="jogo-times">
+            <div class="time">
+              <img src="flags/${jogo.HomeTeam}.png" alt="${jogo.HomeTeam}" class="bandeira">
+              <div class="nome-time">${jogo.HomeTeam}</div>
+              <input type="number" class="palpite" min="0" placeholder="0">
+            </div>
+            <div class="versus">vs</div>
+            <div class="time">
+              <img src="flags/${jogo.AwayTeam}.png" alt="${jogo.AwayTeam}" class="bandeira">
+              <div class="nome-time">${jogo.AwayTeam}</div>
+              <input type="number" class="palpite" min="0" placeholder="0">
+            </div>
+          </div>
         `;
-        container.appendChild(div);
+
+        container.appendChild(card);
       });
     })
     .catch(err => {
